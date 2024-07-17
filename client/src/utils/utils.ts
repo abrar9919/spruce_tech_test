@@ -1,6 +1,13 @@
 import {XorO} from "../types"
 
-// A function that takes size as an input, and returns an array the size of length input, with each item containing an array filled with undefineds the length of size n
+/**
+ * The function `changeBoardSize` creates a 2D array representing a board with a specified size.
+ * @param {number} size - The `size` parameter in the `changeBoardSize` function represents the number
+ * of rows and columns in the board that you want to create.
+ * @returns An array of arrays is being returned, where each inner array contains `undefined` values.
+ * The number of inner arrays and the number of elements in each inner array is determined by the
+ * `size` parameter passed to the `changeBoardSize` function.
+ */
 const changeBoardSize = (size: number) => {
 	const cols = new Array<undefined>(size).fill(undefined)
 	const rows: Array<Array<undefined>> = []
@@ -24,9 +31,6 @@ const changeBoardSize = (size: number) => {
  * are the same (either 'X' or 'O'), and `false` otherwise.
  */
 const isWinnerVertical = (board: (XorO | undefined)[][], col: number) => {
-	// TODO: Not sure if this is the best case scenario, but I think this should throw an error and notify the client
-	if (col >= board.length || !board.length) return false
-
 	const xOrO = board[0][col]
 	if (!xOrO) return false
 
@@ -38,15 +42,12 @@ const isWinnerVertical = (board: (XorO | undefined)[][], col: number) => {
 	return true
 }
 
-const isWinnerHorizontal = (board: (XorO | undefined)[][], row: number) => {
-	// TODO: Not sure if this is the best case scenario, but I think this should throw an error and notify the client
-	if (row >= board.length || !board.length) return false
-
-	const xOrO = board[row][0]
+const isWinnerHorizontal = (board: (XorO | undefined)[]) => {
+	const xOrO = board[0]
 	if (!xOrO) return false
 
 	for (let i = 1; i < board.length; i++) {
-		if (board[row][i] !== xOrO) {
+		if (board[i] !== xOrO) {
 			return false
 		}
 	}
@@ -66,6 +67,8 @@ const isWinnerDiagonalRightToLeft = (board: (XorO | undefined)[][]) => {
 	let currentRow = board.length - 1
 	let currentCol = 0
 	const isXOrO = board[currentRow][currentCol]
+	if (!isXOrO) return false
+
 	while (currentCol < board.length - 1) {
 		currentCol++
 		currentRow--

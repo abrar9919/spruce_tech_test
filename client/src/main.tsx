@@ -38,7 +38,7 @@ export const Main = () => {
 		} else {
 			console.log(isWinnerDiagonalFromLeftToRight(boardCopy))
 			const isWinner =
-				isWinnerHorizontal(boardCopy, row) ||
+				isWinnerHorizontal(boardCopy[row]) ||
 				isWinnerVertical(boardCopy, column) ||
 				isWinnerDiagonalFromLeftToRight(boardCopy) ||
 				isWinnerDiagonalRightToLeft(boardCopy)
@@ -55,7 +55,6 @@ export const Main = () => {
 		setTotalMoves(0)
 	}
 
-	console.log(gameStatus)
 	return (
 		<div className='flex flex-col mt-10 items-center gap-10'>
 			<div className='font-bold text-2xl'>Tic Tac Toe</div>
@@ -79,7 +78,9 @@ export const Main = () => {
 				{gameStatus && (
 					<>
 						<p className='text-center pb-4'>
-							Congrats on winning, player {gameStatus}!
+							{gameStatus === "Draw"
+								? "The game ended in a draw!"
+								: `Congrats on winning, player ${gameStatus}!`}
 						</p>
 						<div className='flex items-center justify-center gap-8 pb-4'>
 							<input
