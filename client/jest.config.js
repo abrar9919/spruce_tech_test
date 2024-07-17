@@ -3,7 +3,5 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
-    '^.+\\.svg$': '<rootDir>/svg_transform.js'
-  }
+    '^.+\\.tsx?$': 'ts-jest',  }
 }
