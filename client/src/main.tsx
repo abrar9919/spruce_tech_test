@@ -1,5 +1,5 @@
-import React, {useState} from "react"
-import {XorO, winner} from "./types"
+import React, {useEffect, useState} from "react"
+import {BoardDB, Position, ServerResponse, XorO, winner} from "./types"
 import {
 	changeBoardSize,
 	checkIsGameOver,
@@ -10,6 +10,9 @@ import {
 	isXOrO,
 } from "./utils/utils"
 import TicTacToeBox from "./components/TicTacToeBox"
+import {useMutation} from "@tanstack/react-query"
+import {SERVER_URL} from "./utils/constants"
+import PreviousGames from "./components/PreviousGames"
 
 export const Main = () => {
 	const [board, setBoard] = useState<(XorO | undefined)[][]>([
@@ -20,8 +23,68 @@ export const Main = () => {
 	const [boardSize, setBoardSize] = useState(3)
 	const [gameStatus, setGameStatus] = useState<winner>(undefined)
 	const [totalMoves, setTotalMoves] = useState(0)
-
 	const isXOr0 = isXOrO(totalMoves)
+
+	const createNewGame = async () => {
+		const response = await fetch(`${SERVER_URL}/game`, {
+			method: "POST",
+			body: JSON.stringify({board_size: boardSize}),
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
+		const data = (await response.json()) as ServerResponse<BoardDB[]>
+		return data
+	}
+	// New game will always contain the new id of a game
+	const newGame = useMutation({
+		mutationFn: createNewGame,
+	})
+	const gameId = newGame?.data?.data[0].game_id
+
+	const updateMoveInServer = async (payload: Position) => {
+		const {row, col} = payload
+		const response = await fetch(`${SERVER_URL}/game/${gameId}/move`, {
+			method: "POST",
+			body: JSON.stringify({
+				row,
+				col,
+				player: isXOr0 === "O" ? "X" : "O", // Doing it this way because the state has already been updated to the next player
+				move_number: totalMoves,
+			}),
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
+
+		return await response.json()
+	}
+
+	const updateGameStatusInServer = async () => {
+		const response = await fetch(`${SERVER_URL}/game/${gameId}`, {
+			method: "PUT",
+			body: JSON.stringify({
+				result: gameStatus,
+			}),
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
+		return await response.json()
+	}
+
+	const updateMove = useMutation({
+		mutationFn: updateMoveInServer,
+	})
+
+	const updateGameStatus = useMutation({
+		mutationFn: updateGameStatusInServer,
+	})
+
+	useEffect(() => {
+		newGame.mutate()
+	}, [])
+
 	const updateBoard = (row: number, column: number) => {
 		const boardCopy = JSON.parse(JSON.stringify(board))
 		if (isXOr0 === "X") {
@@ -31,19 +94,23 @@ export const Main = () => {
 		}
 		setTotalMoves(totalMoves + 1)
 
+		updateMove.mutate({row, col: column})
 		const isGameOver = checkIsGameOver(boardSize, totalMoves)
 
 		if (isGameOver) {
 			setGameStatus("Draw")
+			updateGameStatus.mutate()
 		} else {
-			console.log(isWinnerDiagonalFromLeftToRight(boardCopy))
 			const isWinner =
 				isWinnerHorizontal(boardCopy[row]) ||
 				isWinnerVertical(boardCopy, column) ||
 				isWinnerDiagonalFromLeftToRight(boardCopy) ||
 				isWinnerDiagonalRightToLeft(boardCopy)
 
-			if (isWinner) setGameStatus(isXOr0)
+			if (isWinner) {
+				setGameStatus(isXOr0)
+				updateGameStatus.mutate()
+			}
 		}
 
 		setBoard(boardCopy)
@@ -53,6 +120,7 @@ export const Main = () => {
 		setBoard(changeBoardSize(boardSize))
 		setGameStatus(undefined)
 		setTotalMoves(0)
+		newGame.mutate()
 	}
 
 	return (
@@ -101,6 +169,7 @@ export const Main = () => {
 					</>
 				)}
 			</div>
+			<PreviousGames />
 		</div>
 	)
 }

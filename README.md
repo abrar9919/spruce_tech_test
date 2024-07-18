@@ -1,3 +1,30 @@
+Solution:
+
+Built with TypeScript, React, NodeJS and Supabase (With a Postgres db)
+
+In order to run the front end, run the following commands
+cd client
+npm ci 
+npm run dev
+
+In order to run the back end, run the following commands on a separate terminal
+cd backend
+npm ci
+npm run dev
+
+There needs to be an .env file in the backend with the following variables:
+SUPABASE_URL=https://jjmmvzknphnqduxbvpmv.supabase.co
+SUPABASE_KEY= Please ask for the key to me personally
+
+Please check schema.sql to see the database schema.
+
+I've written the code to make it highly testable, with adding some unit tests for some of the more complex functionalities in the utilities folder.
+
+If I had more time, I'd have improved the codebase, by storing all the API calls in a separate file and writing unit tests for them with MSW
+
+With the solution, I could have written more functionality to "resume the game", if the game wasn't finished, or show all the moves as they are stored in the database.
+
+
 
 # Tic-Tac-Toe
 The below problems are to allow us a glimpse into your problem solving ability, style and current skill set. Please do problem 1, and optionally problem 2 or 3 depending on where you are most comfortable. We expect this test to take 2-3 hours, if you find yourself spending more than this do not aim to solve all 3 problems! We will not be judging based on number of problems completed only the style and thought process.
